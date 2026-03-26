@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cloud Office Demo</title>
+    <style>
+      body { font-family: Arial, sans-serif; margin: 24px; background: #f6f8fb; }
+      .card { background: #fff; border-radius: 8px; padding: 16px; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+      .scene { position: relative; height: 320px; border: 1px dashed #9aa4b2; background: #fdfefe; }
+      .node { position: absolute; padding: 4px 8px; font-size: 12px; border-radius: 4px; color: #fff; }
+      .zone { background: #0ea5e9; }
+      .seat { background: #22c55e; }
+      .participant { background: #f97316; }
+      pre { white-space: pre-wrap; word-break: break-all; }
+    </style>
+  </head>
+  <body>
+    <h1>Cloud Office 2D 场景 Demo</h1>
+    <div class="card">
+      <strong>说明：</strong>当前页面由后端 `/api/scene/gathered` 聚合结果驱动，展示了 gather 风格的办公室 2D 场景。
+    </div>
+
+    <div class="card">
+      <h3>场景可视化（简版）</h3>
+      <div id="scene" class="scene"></div>
+    </div>
+
+    <div class="card">
+      <h3>原始 JSON</h3>
+      <pre id="json">loading...</pre>
+    </div>
+
+    <script src="/app.js"></script>
+  </body>
+</html>

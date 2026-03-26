@@ -8,6 +8,14 @@ from office_module.application.dto import (
     EnterOfficeInput,
     MoveInput,
 )
+from office_module.scene import (
+    InMemorySceneDefinitionRepo,
+    Office2DSceneGatherService,
+    SceneDefinition,
+    SceneDefinitionService,
+    SceneDimension,
+    SceneLayer,
+)
 
 
 class OfficeModuleTestCase(unittest.TestCase):
@@ -89,6 +97,55 @@ class OfficeModuleTestCase(unittest.TestCase):
                     mapping_rules={"ZONE_WORK": "node-zone-work"},
                 )
             )
+
+    def test_office_can_be_deactivated(self) -> None:
+        self.module.command.activate_office("office_1")
+        office = self.module.command.deactivate_office("office_1")
+        self.assertEqual(office.status.value, "INACTIVE")
+
+    def test_scene_interfaces_and_first_2d_gather(self) -> None:
+        self.module.command.activate_office("office_1")
+        self.module.command.enter_office(
+            EnterOfficeInput(
+                session_id="sess_1",
+                office_id="office_1",
+                subject_id="u_1",
+                position_token="ZONE_WORK.SEAT_1",
+            )
+        )
+        self.module.command.bind_scene(
+            BindSceneInput(
+                scene_binding_id="scene_bind_1",
+                office_id="office_1",
+                renderer_type="pixi",
+                scene_asset_ref="asset://scene/default-2d",
+                mapping_rules={"ZONE_WORK": "node-zone-work", "SEAT_1": "node-seat-a1"},
+            )
+        )
+
+        repo = InMemorySceneDefinitionRepo()
+        scene_service = SceneDefinitionService(repo)
+        scene = scene_service.save_scene(
+            SceneDefinition(
+                scene_id="scene_2d_default",
+                name="Default Office 2D",
+                dimension=SceneDimension.D2,
+                renderer_type="pixi",
+                asset_ref="asset://scene/default-2d",
+                layers=[SceneLayer(layer_id="base", name="Base Layer", z_index=0)],
+                metadata={"theme": "day"},
+            )
+        )
+
+        gathered = Office2DSceneGatherService().gather(
+            scene=scene,
+            mapping_rules={"ZONE_WORK": "node-zone-work", "SEAT_1": "node-seat-a1"},
+            layout=self.module.query.get_layout("office_1"),
+            presence=self.module.query.list_presence("office_1"),
+        )
+        self.assertEqual(gathered.scene_id, "scene_2d_default")
+        self.assertEqual(len(gathered.nodes), 2)
+        self.assertEqual(len(gathered.participants), 1)
 
 
 if __name__ == "__main__":
