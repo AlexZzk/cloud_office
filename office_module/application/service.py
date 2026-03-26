@@ -87,6 +87,13 @@ class OfficeCommandService:
         self.event_bus.publish(DomainEvent(name="OfficeArchived", payload={"office_id": office_id}))
         return office
 
+    def deactivate_office(self, office_id: str) -> OfficeInstance:
+        office = self._must_get_office(office_id)
+        office.status = OfficeStatus.INACTIVE
+        self.office_repo.save_office(office)
+        self.event_bus.publish(DomainEvent(name="OfficeDeactivated", payload={"office_id": office_id}))
+        return office
+
     def bind_scene(self, data: BindSceneInput) -> SceneBinding:
         office = self._must_get_office(data.office_id)
         template = self.template_repo.get_template(office.template_id)
